@@ -1,41 +1,32 @@
-import React, { Component} from "react";
-import {hot} from "react-hot-loader";
+import * as React from 'react';
+import * as R from 'ramda';
+import Greet from './components/Greet';
+import Header from './components/Header';
+import Container from './components/Container';
+import Text from './components/Text';
 
-import Greet from './Greet';
+const greetProps = {
+  user: 'Will', greeting: 'Hello Good Sir!', attrs: [
+    {name: 'height', value: '6 feet'},
+    {name: 'hair', value: 'blond'},
+    {name: 'weight', value: 'HEY EASY BUDDY!'},
+  ],
+};
+const headerProps = {text: 'I am Header'};
+const textProps = {text: 'I am text'};
+const containerProps = {children: 'childen container prop'};
 
-const greetProps = {user: 'Will', greeting: 'Hello Good Sir!', attrs: [
-  {name: 'height', value: '6 feet'},
-  {name: 'hair', value: 'blond'},
-  {name: 'weight', value: 'too much'},
-]};
+const renderApp = R.pipe(
+  Container(containerProps),
+    Header.AndClose(headerProps),
+    Text.AndClose(textProps), Text.Close,
+    Greet(greetProps),
+      Container(containerProps),
+        Text.AndClose({text: 'I am inside "Container.Greet.Container"'}),
+        Container.AndClose({children: <h3>React and JSX still work</h3>}),
+      Container.Close,
+    Greet.Close,
+  Container.Close,
+);
 
-const greetWill = (mountPoint) => Greet(greetProps, mountPoint);
-
-class App extends Component {
-
-
-  constructor(props) {
-    super(props);
-  }
-
-  componentDidMount() {
-    // greetWill(this.greetMount);
-    this.greetComp.props = greetProps;
-    this.greetComp.update();
-    // console.log(this.greetComp, this.greetComp.props);
-    // this.forceUpdate();
-  }
-
-  render(){
-
-    return(
-      <div className="App">
-        <h1> Hello, World! </h1>
-        <div ref={c => this.greetMount = c} />
-        <greet-react ref={c => this.greetComp = c} />
-      </div>
-    );
-  }
-}
-
-export default hot(module)(App);
+export default childMount => renderApp({childMount, name: 'App'});

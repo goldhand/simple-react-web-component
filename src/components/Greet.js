@@ -1,5 +1,5 @@
 import * as React from 'react';
-import toWebComponent from './WebComponent';
+import toWebComponent from '../WebComponent';
 
 const styles = {
   greeting: {
@@ -14,6 +14,7 @@ const Greet = ({
   user,
   greeting,
   attrs,
+  children,
 }) => (
   <div>
     <h1 style={styles.greeting}>{greeting}</h1>
@@ -24,7 +25,8 @@ const Greet = ({
         : null
       }
     </ul>
+    {children}
   </div>
 );
 
-export default toWebComponent(Greet, 'greet-react');
+export default toWebComponent(Greet, {name: 'greet-component', module});

@@ -1,31 +1,26 @@
 import * as React from 'react';
-import {hot} from "react-hot-loader";
+
+const getSlotName = name => `slot-${name}`;
+
+export const createChildSlot = name => {
+  const childSlot = document.createElement('span');
+  childSlot.setAttribute('slot', getSlotName(name));
+  return childSlot;
+};
 
 const slotChildren = (UnwrappedComponent, options = {}) => {
-  // enable hot reloading in each react tree
-  const Component = hot(options.module || module)(UnwrappedComponent);
-  const slotName = `slot-${options.name}`;
-
   class SlotWrapper extends React.Component {
-    constructor(props) {
-      super(props);
-    }
     render() {
       const {children, ...props} = this.props;
       return (
-        <Component {...props}>
+        <UnwrappedComponent {...props}>
           {children}
-          <slot name={slotName} />
-        </Component>
+          <slot name={getSlotName(options.name)} />
+        </UnwrappedComponent>
       );
     }
   }
-  SlotWrapper.displayName = `SlotChildren(${Component.displayName || Component.name || '[component]'})`;
-  SlotWrapper.createChildSlot = () => {
-    const childSlot = document.createElement('span');
-    childSlot.setAttribute('slot', slotName);
-    return childSlot;
-  };
+  SlotWrapper.displayName = `SlotChildren(${UnwrappedComponent.displayName || UnwrappedComponent.name || '[component]'})`;
   return SlotWrapper;
 };
 

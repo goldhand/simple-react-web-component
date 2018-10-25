@@ -1,10 +1,19 @@
 import * as React from 'react';
-import * as R from 'ramda';
 import ReactDOM from 'react-dom';
-import slotChildren from './SlotChildren';
+import {hot} from "react-hot-loader";
+import * as R from 'ramda';
+import slotChildren, {createChildSlot} from './SlotChildren';
+import wrapPropsWithState, {createStore} from './WrapPropsWithState';
 
 const toWebComponent = (UnwrappedComponent, options = {}) => {
-  const Component = slotChildren(UnwrappedComponent, options);
+
+  const store = createStore();
+  const Component = wrapPropsWithState(
+    slotChildren(
+      // enable hot reloading in each react tree
+      hot(options.module || module)(UnwrappedComponent),
+    options),
+  );
 
   class WebComponent extends HTMLElement {
     constructor(...args) {
@@ -12,7 +21,8 @@ const toWebComponent = (UnwrappedComponent, options = {}) => {
       this.name = options.name;
       this.mountPoint = document.createElement('span');
       this.shadow = this.attachShadow({mode: 'open'});
-      this.childMount = Component.createChildSlot();
+      this.childMount = createChildSlot(options.name);
+      this._subscribeId = `${options.name}-${store.assignId()}`;
     }
     get props() {
       return this._props;
@@ -35,13 +45,13 @@ const toWebComponent = (UnwrappedComponent, options = {}) => {
       this.shadow.appendChild(this.mountPoint);
 
       ReactDOM.render(
-        <Component {...this.props}  />,
+        <Component {...this.props} subscribeToUpdates={store.subscribe(this._subscribeId)} />,
         this.mountPoint,
       );
     }
     update() {
-      ReactDOM.unmountComponentAtNode(this.mountPoint);
-      ReactDOM.render(<Component {...this.props} />, this.mountPoint);
+      // force react to calculate new state
+      store.dispatch(this._subscribeId, this.props);
     }
   }
 

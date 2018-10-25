@@ -1,5 +1,13 @@
-import renderApp from './App';
+import Greet from './components/Greet';
+import Header from './components/Header';
+import Container from './components/Container';
+import Text from './components/Text';
+import Timer from './components/Timer';
 
-const mountPoint = document.getElementById("root");
-
-renderApp(mountPoint);
+export {
+  Greet,
+  Header,
+  Container,
+  Text,
+  Timer,
+};
